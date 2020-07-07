@@ -2,7 +2,7 @@
 
 from ..common import *
 from ..extractor import VideoExtractor
-
+import pdb
 import hashlib
 
 class Bilibili(VideoExtractor):
@@ -657,13 +657,14 @@ class Bilibili(VideoExtractor):
                 playinfo_text_ = match1(html_content_, r'__playinfo__=(.*?)</script><script>')  # FIXME
                 playinfo_ = json.loads(playinfo_text_) if playinfo_text_ else None
                 p = int(match1(self.url, r'[\?&]p=(\d+)') or match1(self.url, r'/index_(\d+)') or '1')-1
-                for pi in range(p,pn):
+                for pi in range(p,pn):  # TODO: Make this multiprocess
                     self.prepare_by_cid(aid,initial_state['videoData']['pages'][pi]['cid'],'%s (P%s. %s)' % (initial_state['videoData']['title'], pi+1, initial_state['videoData']['pages'][pi]['part']),html_content,playinfo,playinfo_,url)
                     try:
                         self.streams_sorted = [dict([('id', stream_type['id'])] + list(self.streams[stream_type['id']].items())) for stream_type in self.__class__.stream_types if stream_type['id'] in self.streams]
                     except:
                         self.streams_sorted = [dict([('itag', stream_type['itag'])] + list(self.streams[stream_type['itag']].items())) for stream_type in self.__class__.stream_types if stream_type['itag'] in self.streams]
                     self.extract(**kwargs)
+                    pdb.set_trace()
                     self.download(**kwargs)
                     # purl = 'https://www.bilibili.com/video/av%s?p=%s' % (aid, pi+1)
                     # self.__class__().download_by_url(purl, **kwargs)
